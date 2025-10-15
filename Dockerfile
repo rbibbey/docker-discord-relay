@@ -1,13 +1,18 @@
-# Use a slim Node LTS with good CA certs
+# Dockerfile
 FROM node:20-alpine
 
 WORKDIR /app
-COPY package.json package-lock.json* ./
-RUN npm ci --only=production
 
+# Copy only manifest(s) first for better caching
+COPY package.json ./
+
+# Create a lockfile, then install prod deps only
+RUN npm i --package-lock-only \
+ && npm ci --omit=dev
+
+# Now copy the app code
 COPY index.mjs ./
 
 ENV NODE_ENV=production
 EXPOSE 3000
-
 CMD ["node", "index.mjs"]
