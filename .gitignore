@@ -1,0 +1,67 @@
+# Node dependencies and caches
+node_modules/
+.npm/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Build output
+/dist/
+/build/
+/.next/
+/.nuxt/
+
+# Coverage and test output
+/coverage/
+/.nyc_output/
+
+# Transpiler/packager caches
+/.cache/
+/.parcel-cache/
+/.rpt2_cache/
+/.turbo/
+
+# TypeScript
+*.tsbuildinfo
+
+# Temporary files
+/tmp/
+/temp/
+/.tmp/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Lint/format caches
+.eslintcache
+
+# Process IDs
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Editor directories and files
+.vscode/
+.idea/
+*.iml
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Docker-related (local overrides, metadata)
+docker-compose.override.yml
+.docker/
+
+# Misc
+*.swp
+*.swonode_modules/
