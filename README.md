@@ -1,7 +1,3 @@
-Here’s a clean **README.md** you can paste straight into your repo. I’ve replaced any personal references with “Your Name,” and included a Mermaid architecture diagram.
-
----
-
 # docker-discord-relay
 
 A tiny Dockerized **Discord → n8n relay** that listens for messages in selected channels and forwards them to an **n8n Webhook Trigger**. Supports both **prefix commands** (e.g., `!help`) and **conversational chat** (mention/DM/reply triggers). Includes identity payloads so you can build **per-user long-term memory** in n8n.
@@ -14,11 +10,20 @@ A tiny Dockerized **Discord → n8n relay** that listens for messages in selecte
 
 ```mermaid
 flowchart LR
-  A[Discord Channel(s)] -- Gateway Events (messageCreate) --> B[discord-relay (Docker)]
-  B -- HTTPS POST (JSON) --> C[n8n Webhook Trigger]
-  C --> D[Routing & Memory in n8n<br/>(Data Store / DB / LLM)]
-  D -- Reply (Discord API) --> A
+  A["Discord channel(s)"]
+  B["discord-relay (Docker)"]
+  C["n8n Webhook Trigger"]
+  D["Routing & Memory in n8n\n(Data Store / DB / LLM)"]
+
+  A --|messageCreate events|--> B
+  B --|HTTPS POST (JSON)|--> C
+  C --> D
+  D --|Reply (Discord API)|--> A
 ```
+
+Discord channel(s)  -->  discord-relay (Docker)  -->  n8n Webhook Trigger  -->  Routing & Memory in n8n
+       ^                                                                                              |
+       |------------------------------------ Reply (Discord API) -------------------------------------|
 
 ---
 
