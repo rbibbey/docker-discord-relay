@@ -1,6 +1,10 @@
 import { Client, GatewayIntentBits, Events } from 'discord.js';
 import axios from 'axios';
 import dotenv from 'dotenv';
+import https from 'https';
+import fs from 'fs';
+import url from 'url';
+
 dotenv.config();
 
 const required = (k) => {
@@ -15,7 +19,6 @@ const required = (k) => {
 const DISCORD_TOKEN = required('DISCORD_TOKEN');
 const N8N_WEBHOOK_URL = required('N8N_WEBHOOK_URL'); // e.g., https://n8n.example.com/webhook/discord-relay
 const SHARED_SECRET = required('SHARED_SECRET');
-
 const ALLOWED_CHANNELS = (process.env.ALLOWED_CHANNELS || '')
   .split(',').map(s => s.trim()).filter(Boolean); // comma-separated channel IDs
 const COMMAND_PREFIX = process.env.COMMAND_PREFIX || '!'; // e.g., !ping
@@ -34,6 +37,23 @@ const CHAT_TRIGGERS = (process.env.CHAT_TRIGGERS || 'MENTION,DM,REPLY')
   .split(',').map(s => s.trim().toUpperCase()).filter(Boolean);
 const CHAT_CONTEXT_LAST_N = Math.max(0, Number(process.env.CHAT_CONTEXT_LAST_N || 0));
 const FETCH_MEMBER_PROFILE = (process.env.FETCH_MEMBER_PROFILE || 'true').toLowerCase() === 'true';
+
+const N8N_INSECURE_TLS = (process.env.N8N_INSECURE_TLS || 'false').toLowerCase() === 'true';
+const N8N_CA_CERT_PATH = process.env.N8N_CA_CERT_PATH || '';
+
+let httpsAgent = undefined;
+try {
+  if (N8N_CA_CERT_PATH) {
+    const ca = fs.readFileSync(N8N_CA_CERT_PATH, 'utf8');
+    httpsAgent = new https.Agent({ ca });
+    console.log('[tls] Using custom CA bundle from', N8N_CA_CERT_PATH);
+  } else if (N8N_INSECURE_TLS) {
+    httpsAgent = new https.Agent({ rejectUnauthorized: false });
+    console.warn('[tls] INSECURE mode enabled: TLS certificate verification DISABLED (dev only).');
+  }
+} catch (e) {
+  console.error('[tls] Failed to initialize TLS agent:', e.message);
+}
 
 // Basic HTTP health endpoint (no extra deps)
 import http from 'http';
@@ -133,16 +153,25 @@ async function buildContext(msg) {
   }
 }
 
-async function postWithRetry(url, data, headers, retries = MAX_RETRIES) {
+async function postWithRetry(targetUrl, data, headers, retries = MAX_RETRIES) {
   let attempt = 0, lastErr;
+  // decide whether to attach httpsAgent
+  const isHttps = targetUrl?.toLowerCase?.().startsWith('https://');
+  const axiosOpts = {
+    headers,
+    timeout: 10000,
+    ...(isHttps && httpsAgent ? { httpsAgent } : {})
+  };
+
   while (attempt <= retries) {
     try {
-      await axios.post(url, data, { headers, timeout: 10000 });
+      await axios.post(targetUrl, data, axiosOpts);
       return;
     } catch (e) {
       lastErr = e;
       const wait = Math.min(2000 * (attempt + 1), 8000);
-      console.warn(`[relay] POST failed (attempt ${attempt + 1}/${retries + 1}):`, e?.response?.status || e.message);
+      const status = e?.response?.status || e?.code || e.message;
+      console.warn(`[relay] POST failed (attempt ${attempt + 1}/${retries + 1}): ${status}`);
       await new Promise(r => setTimeout(r, wait));
       attempt++;
     }
