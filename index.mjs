@@ -1,5 +1,7 @@
 import { Client, GatewayIntentBits, Events } from 'discord.js';
 import axios from 'axios';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const required = (k) => {
   const v = process.env[k];
