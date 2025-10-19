@@ -31,7 +31,7 @@ function getArgValue(argv, keys) {
     // --key=value
     if (a.startsWith('--')) {
       const [k, v] = a.split('=');
-      if (keys.includes(k.replace(/^--/, ''))) return v ?? argv[i + 1];
+      if (keys.includes(k.replace(/^--/, ''))) return v;
     }
     // -k value
     if (a.startsWith('-') && !a.startsWith('--')) {
