@@ -6,6 +6,44 @@ A tiny Dockerized **Discord → n8n relay** that listens for messages in selecte
 
 ---
 
+## How to use (Docker helper scripts)
+
+This repo ships with cross‑platform npm scripts for Docker tasks. Configure your `.env` first:
+
+```
+DOCKER_IMAGE="[your image path here]"
+# Optional default for login:
+# DOCKER_REGISTRY=index.docker.io
+```
+
+Then use these commands:
+
+- Login
+  - PowerShell: `npm run docker:login` or `npm run docker:login -- --registry index.docker.io`
+  - zsh: `npm run docker:login` or `npm run docker:login -- --registry index.docker.io`
+
+- Build (defaults tag to package.json version)
+  - PowerShell: `npm run docker:build` or `npm run docker:build -- --tag 1.2.3`
+  - zsh: `npm run docker:build` or `npm run docker:build -- --tag 1.2.3`
+
+- Tag an existing local image
+  - PowerShell: `npm run docker:tag -- --from 1.2.3 --tag latest`
+  - zsh: `npm run docker:tag -- --from 1.2.3 --tag latest`
+
+- Push
+  - PowerShell: `npm run docker:push` or `npm run docker:push -- --tag 1.2.3`
+  - zsh: `npm run docker:push` or `npm run docker:push -- --tag 1.2.3`
+
+- Publish (build + tag + push; add --latest to also push :latest)
+  - PowerShell: `npm run docker:publish` or `npm run docker:publish -- --tag 1.2.3 --latest`
+  - zsh: `npm run docker:publish` or `npm run docker:publish -- --tag 1.2.3 --latest`
+
+Tips:
+- You can also supply tags via environment variables: `TAG=<name>` and `FROM_TAG=<name>`.
+- Commands honor the `DOCKER_IMAGE` from your `.env`.
+
+---
+
 ## Architecture
 
 ```mermaid
