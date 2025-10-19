@@ -11,7 +11,7 @@ A tiny Dockerized **Discord → n8n relay** that listens for messages in selecte
 This repo ships with cross‑platform npm scripts for Docker tasks. Configure your `.env` first:
 
 ```
-DOCKER_IMAGE=cbmediallc/docker-discord-relay
+DOCKER_IMAGE="[your image path here]"
 # Optional default for login:
 # DOCKER_REGISTRY=index.docker.io
 ```
